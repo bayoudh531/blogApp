@@ -5,26 +5,26 @@ import 'package:CWCFlutter/screens/food_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class Feed extends StatefulWidget {
+class GFeed extends StatefulWidget {
   @override
-  _FeedState createState() => _FeedState();
+  _GFeedState createState() => _GFeedState();
 }
 
-class _FeedState extends State<Feed> {
+class _GFeedState extends State<GFeed> {
   @override
   void initState() {
-    FoodNotifier foodNotifier = Provider.of<FoodNotifier>(context, listen: false);
-    getFoods(foodNotifier);
+    GalorieNotifier foodNotifier = Provider.of<GalorieNotifier>(context, listen: false);
+    getGalorie(foodNotifier);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     
-    FoodNotifier foodNotifier = Provider.of<FoodNotifier>(context);
+    GalorieNotifier foodNotifier = Provider.of<GalorieNotifier>(context);
 
     Future<void> _refreshList() async {
-      getFoods(foodNotifier);
+      getGalorie(foodNotifier);
     }
 
     print("building Feed");
@@ -32,7 +32,7 @@ class _FeedState extends State<Feed> {
       appBar: AppBar(
         backgroundColor: Colors.yellow,
         title: Text(
-        'food',style: TextStyle(
+        'Galorie',style: TextStyle(
              fontSize: 35,
              foreground: Paint()
              ..style=PaintingStyle.stroke
@@ -47,23 +47,22 @@ class _FeedState extends State<Feed> {
           itemBuilder: (BuildContext context, int index) {
             return ListTile(
               leading: Image.network(
-                foodNotifier.foodList[index].image != null
-                    ? foodNotifier.foodList[index].image
+                foodNotifier.galorieList[index].image != null
+                    ? foodNotifier.galorieList[index].image
                     : 'https://www.testingxperts.com/wp-content/uploads/2019/02/placeholder-img.jpg',
                 width: 120,
                 fit: BoxFit.fitWidth,
               ),
-              title: Text(foodNotifier.foodList[index].name),
-              subtitle: Text(foodNotifier.foodList[index].category),
+              title: Text(foodNotifier.galorieList[index].name),
               onTap: () {
-                foodNotifier.currentFood = foodNotifier.foodList[index];
+                foodNotifier.currentGalorie = foodNotifier.galorieList[index];
                 Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {
-                  return FoodDetail();
+                  return GalorieDetail();
                 }));
               },
             );
           },
-          itemCount: foodNotifier.foodList.length,
+          itemCount: foodNotifier.galorieList.length,
           separatorBuilder: (BuildContext context, int index) {
             return Divider(
               color: Colors.black,
@@ -74,10 +73,10 @@ class _FeedState extends State<Feed> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          foodNotifier.currentFood = null;
+          foodNotifier.currentGalorie = null;
           Navigator.of(context).push(
             MaterialPageRoute(builder: (BuildContext context) {
-              return FoodForm(
+              return GalorieForm(
                 isUpdating: false,
               );
             }),

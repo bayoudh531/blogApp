@@ -9,23 +9,23 @@ import 'package:uuid/uuid.dart';
 
 
 
-getFoods(FoodNotifier foodNotifier) async {
+getGalorie(GalorieNotifier foodNotifier) async {
   QuerySnapshot snapshot = await Firestore.instance
-      .collection('Foods')
+      .collection('photos')
       .orderBy("createdAt", descending: true)
       .getDocuments();
 
-  List<Food> _foodList = [];
+  List<Galorie> _foodList = [];
 
   snapshot.documents.forEach((document) {
-    Food food = Food.fromMap(document.data);
+    Galorie food = Galorie.fromMap(document.data);
     _foodList.add(food);
   });
 
-  foodNotifier.foodList = _foodList;
+  foodNotifier.galorieList = _foodList;
 }
 
-uploadFoodAndImage(Food food, bool isUpdating, File localFile, Function foodUploaded) async {
+uploadGalorieAndImage(Galorie food, bool isUpdating, File localFile, Function foodUploaded) async {
   if (localFile != null) {
     print("uploading image");
 
@@ -35,7 +35,7 @@ uploadFoodAndImage(Food food, bool isUpdating, File localFile, Function foodUplo
     var uuid = Uuid().v4();
 
     final StorageReference firebaseStorageRef =
-        FirebaseStorage.instance.ref().child('foods/images/$uuid$fileExtension');
+        FirebaseStorage.instance.ref().child('photos/images/$uuid$fileExtension');
 
     await firebaseStorageRef.putFile(localFile).onComplete.catchError((onError) {
       print(onError);
@@ -44,15 +44,15 @@ uploadFoodAndImage(Food food, bool isUpdating, File localFile, Function foodUplo
 
     String url = await firebaseStorageRef.getDownloadURL();
     print("download url: $url");
-    _uploadFood(food, isUpdating, foodUploaded, imageUrl: url);
+    _uploadGalorie(food, isUpdating, foodUploaded, imageUrl: url);
   } else {
     print('...skipping image upload');
-    _uploadFood(food, isUpdating, foodUploaded);
+    _uploadGalorie(food, isUpdating, foodUploaded);
   }
 }
 
-_uploadFood(Food food, bool isUpdating, Function foodUploaded, {String imageUrl}) async {
-  CollectionReference foodRef = Firestore.instance.collection('Foods');
+_uploadGalorie(Galorie food, bool isUpdating, Function foodUploaded, {String imageUrl}) async {
+  CollectionReference foodRef = Firestore.instance.collection('photos');
 
   if (imageUrl != null) {
     food.image = imageUrl;
@@ -64,7 +64,7 @@ _uploadFood(Food food, bool isUpdating, Function foodUploaded, {String imageUrl}
     await foodRef.document(food.id).updateData(food.toMap());
 
     foodUploaded(food);
-    print('updated food with id: ${food.id}');
+    print('updated  photo with id: ${food.id}');
   } else {
     food.createdAt = Timestamp.now();
 
@@ -72,7 +72,7 @@ _uploadFood(Food food, bool isUpdating, Function foodUploaded, {String imageUrl}
 
     food.id = documentRef.documentID;
 
-    print('uploaded food successfully: ${food.toString()}');
+    print('uploaded photo successfully: ${food.toString()}');
 
     await documentRef.setData(food.toMap(), merge: true);
 
@@ -80,7 +80,7 @@ _uploadFood(Food food, bool isUpdating, Function foodUploaded, {String imageUrl}
   }
 }
 
-deleteFood(Food food, Function foodDeleted) async {
+deleteGalorie(Galorie food, Function foodDeleted) async {
   if (food.image != null) {
     StorageReference storageReference =
         await FirebaseStorage.instance.getReferenceFromUrl(food.image);
@@ -92,6 +92,6 @@ deleteFood(Food food, Function foodDeleted) async {
     print('image deleted');
   }
 
-  await Firestore.instance.collection('Foods').document(food.id).delete();
+  await Firestore.instance.collection('photos').document(food.id).delete();
   foodDeleted(food);
 }

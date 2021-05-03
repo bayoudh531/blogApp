@@ -1,5 +1,7 @@
 import 'dart:io';
 
+
+
 import 'package:CWCFlutter/api/food_api.dart';
 import 'package:CWCFlutter/model/food.dart';
 import 'package:CWCFlutter/notifier/food_notifier.dart';
@@ -7,21 +9,21 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-class FoodForm extends StatefulWidget {
+class GalorieForm extends StatefulWidget {
   final bool isUpdating;
 
-  FoodForm({@required this.isUpdating});
+  GalorieForm({@required this.isUpdating});
 
   @override
-  _FoodFormState createState() => _FoodFormState();
+  _GalorieFormState createState() => _GalorieFormState();
 }
 
-class _FoodFormState extends State<FoodForm> {
+class _GalorieFormState extends State<GalorieForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  List _subingredients = [];
-  Food _currentFood;
+ 
+  Galorie _currentFood;
   String _imageUrl;
   File _imageFile;
   TextEditingController subingredientController = new TextEditingController();
@@ -29,15 +31,13 @@ class _FoodFormState extends State<FoodForm> {
   @override
   void initState() {
     super.initState();
-    FoodNotifier foodNotifier = Provider.of<FoodNotifier>(context, listen: false);
+    GalorieNotifier foodNotifier = Provider.of<GalorieNotifier>(context, listen: false);
 
-    if (foodNotifier.currentFood != null) {
-      _currentFood = foodNotifier.currentFood;
+    if (foodNotifier.currentGalorie != null) {
+      _currentFood = foodNotifier.currentGalorie;
     } else {
-      _currentFood = Food();
+      _currentFood = Galorie();
     }
-
-    _subingredients.addAll(_currentFood.subIngredients);
     _imageUrl = _currentFood.image;
   }
 
@@ -131,58 +131,66 @@ class _FoodFormState extends State<FoodForm> {
     );
   }
 
-  Widget _buildCategoryField() {
+  
+
+  Widget _buildNamePrenomField() {
     return TextFormField(
-      decoration: InputDecoration(labelText: 'Category'),
-      initialValue: _currentFood.category,
+      decoration: InputDecoration(labelText: 'Nom et Prenom'),
+      initialValue: _currentFood.NomPrenom,
       keyboardType: TextInputType.text,
       style: TextStyle(fontSize: 20),
       validator: (String value) {
         if (value.isEmpty) {
-          return 'Category is required';
+          return 'Nom et Prenom is required';
         }
 
-        if (value.length < 3 || value.length > 20) {
-          return 'Category must be more than 3 and less than 20';
+        if (value.length < 3 || value.length > 100) {
+          return 'Name et prenom must be more than 3 and less than 100';
         }
 
         return null;
       },
       onSaved: (String value) {
-        _currentFood.category = value;
+        _currentFood.NomPrenom = value;
       },
     );
   }
 
-  _buildSubingredientField() {
-    return SizedBox(
-      width: 200,
-      child: TextField(
-        controller: subingredientController,
-        keyboardType: TextInputType.text,
-        decoration: InputDecoration(labelText: 'Subingredient'),
-        style: TextStyle(fontSize: 20),
-      ),
+  Widget _buildDescriptionField() {
+    return TextFormField(
+      decoration: InputDecoration(labelText: 'Description'),
+      initialValue: _currentFood.description,
+      keyboardType: TextInputType.text,
+      style: TextStyle(fontSize: 20),
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'Description is required';
+        }
+
+        if (value.length < 3 || value.length > 100) {
+          return 'Description must be more than 3 and less than 20';
+        }
+
+        return null;
+      },
+      onSaved: (String value) {
+        _currentFood.description = value;
+      },
     );
   }
 
-  _onFoodUploaded(Food food) {
-    FoodNotifier foodNotifier = Provider.of<FoodNotifier>(context, listen: false);
-    foodNotifier.addFood(food);
+  
+
+  _onGalorieUploaded(Galorie food) {
+    GalorieNotifier foodNotifier = Provider.of<GalorieNotifier>(context, listen: false);
+    foodNotifier.addGalorie(food);
     Navigator.pop(context);
   }
 
-  _addSubingredient(String text) {
-    if (text.isNotEmpty) {
-      setState(() {
-        _subingredients.add(text);
-      });
-      subingredientController.clear();
-    }
-  }
 
-  _saveFood() {
-    print('saveFood Called');
+
+  _saveGalorie() {
+    print('saveGalorie Called');
     if (!_formKey.currentState.validate()) {
       return;
     }
@@ -191,13 +199,11 @@ class _FoodFormState extends State<FoodForm> {
 
     print('form saved');
 
-    _currentFood.subIngredients = _subingredients;
-
-    uploadFoodAndImage(_currentFood, widget.isUpdating, _imageFile, _onFoodUploaded);
+    uploadGalorieAndImage(_currentFood, widget.isUpdating, _imageFile, _onGalorieUploaded);
 
     print("name: ${_currentFood.name}");
-    print("category: ${_currentFood.category}");
-    print("subingredients: ${_currentFood.subIngredients.toString()}");
+    print("nom et prenom: ${_currentFood.NomPrenom}");
+    print("description: ${_currentFood.description}");
     print("_imageFile ${_imageFile.toString()}");
     print("_imageUrl $_imageUrl");
   }
@@ -206,7 +212,7 @@ class _FoodFormState extends State<FoodForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(title: Text('Food Form')),
+      appBar: AppBar(title: Text('Galorie Form')),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(32),
         child: Form(
@@ -216,7 +222,7 @@ class _FoodFormState extends State<FoodForm> {
             _showImage(),
             SizedBox(height: 16),
             Text(
-              widget.isUpdating ? "Edit Food" : "Create Food",
+              widget.isUpdating ? "Edit Galorie" : "Create Galorie",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 30),
             ),
@@ -233,48 +239,18 @@ class _FoodFormState extends State<FoodForm> {
                   )
                 : SizedBox(height: 0),
             _buildNameField(),
-            _buildCategoryField(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                _buildSubingredientField(),
-                ButtonTheme(
-                  child: ElevatedButton(
-                    child: Text('Add', style: TextStyle(color: Colors.white)),
-                    onPressed: () => _addSubingredient(subingredientController.text),
-                  ),
-                )
-              ],
-            ),
+            _buildNamePrenomField(),
+            _buildDescriptionField(),
+            
             SizedBox(height: 16),
-            GridView.count(
-              shrinkWrap: true,
-              scrollDirection: Axis.vertical,
-              padding: EdgeInsets.all(8),
-              crossAxisCount: 3,
-              crossAxisSpacing: 4,
-              mainAxisSpacing: 4,
-              children: _subingredients
-                  .map(
-                    (ingredient) => Card(
-                      color: Colors.black54,
-                      child: Center(
-                        child: Text(
-                          ingredient,
-                          style: TextStyle(color: Colors.white, fontSize: 14),
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            )
+          
           ]),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           FocusScope.of(context).requestFocus(new FocusNode());
-          _saveFood();
+          _saveGalorie();
         },
         child: Icon(Icons.save),
         foregroundColor: Colors.white,

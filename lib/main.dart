@@ -1,6 +1,6 @@
 
-import 'package:CWCFlutter/homePage.dart';
 import 'package:CWCFlutter/notifier/food_notifier.dart';
+import 'package:CWCFlutter/screens/feed.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 void main() => runApp(MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => FoodNotifier(),
+          create: (context) => GalorieNotifier(),
         ),
       ],
       child: MyApp(),
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         accentColor: Colors.lightBlue,
       ),
-      home:WelcomeChoix(),
+      home:GFeed(),
         
       
     );
